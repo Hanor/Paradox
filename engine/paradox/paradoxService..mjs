@@ -10,10 +10,12 @@ import { Cycle } from '../shared/cycle.mjs'
 
 export class ParadoxService {
     constructor() {
-        this.relations = [];
-        this.cycles = [];
         this.relationType = new RelationshipTypes();
-        this.network = {};
+        this.relationType.done.subscribe(( ready ) => {
+            if ( ready ) {
+                console.log( this.relationType.types );
+            }
+        })
     }
     addCycle( name ) {
         const cycle = new Cycle( name );
@@ -52,6 +54,11 @@ export class ParadoxService {
         return { normal: relationNormal, reversed: relationReversed};
     }
 
+    initialize() {
+        this.relations = [];
+        this.cycles = [];
+        this.network = {};
+    }
     isRelationEqualsToAdd( toAdd, relation ) {
         return toAdd.source.id === relation.source.id && toAdd.target.id === relation.target.id
     }
@@ -60,7 +67,7 @@ export class ParadoxService {
         const cycleA = this.addCycle('a');
         const cycleB = this.addCycle('b');
         
-        const relationDuring = this.relationType.types['during'];
+        const relationDuring = this.relationType.types['after'];
 
         const relations = this.createRelation( cycleA, cycleB, relationDuring );
         this.addRelation( relations );
@@ -72,6 +79,7 @@ export class ParadoxService {
         }
     }
     run() {
+        this.initialize();
         this.readCycles();
     }
     updateNetwork() {
@@ -92,14 +100,32 @@ export class ParadoxService {
             this.network[ key ].processed = false;
 
             let i = key.split('-')[0];
-            let j = key.split('-')[0];
+            let j = key.split('-')[1];
             for ( let k = 0; k < this.relations.length; k++) {
                 let networkKAndJ = this.network[ k + '-' + j ];
                 let networkKAndI = this.network[ k + '-' + i ];
                 let networkIAndJ = this.network[ i + '-' + j ];
+                console.log( networkIAndJ )
+            }
+
+
+                // if ( networkIAndJ ) {
+                //     console.log( 'banana1' )
+                //     console.log( networkIAndJ )
+                // }
+                // if ( networkKAndI ) {
+                //     console.log( 'banana2' )
+                //     console.log( networkKAndI )
+                // }
+                // if ( networkKAndJ ) {
+                //     console.log('banana 4')
+                //     console.log( networkKAndJ )
+                // }
+                
+                // console.log( this.network )
+                // console.log( this.relations )
 
                 //let relationEvaluation = this.
-            }
         }
     }
 }

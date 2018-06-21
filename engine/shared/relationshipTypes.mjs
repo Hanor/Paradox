@@ -6,17 +6,34 @@ import rxjs from 'rxjs';
  */
 export class RelationshipTypes {
     constructor() {
-        this.done = new rxjs.BehaviorSubject();
+        this.state = new rxjs.BehaviorSubject();
+        this.typesName = {};
         this.types = {};
+        this.table = {};
         this.processFile();
-        this.buildTable();
     }
-    buildTable() {
-            
+    buildTable( headers, columns, lines ) {
+        const all = [];
+        for ( let line of lines ) {
+            let values =  line.split(';');
+            let lineNumber = values.splice(0, 1)[0];
+            this.table[ lineNumber ] = [];
+            all.push( lineNumber );
+            for ( let i = 0; i < values.length; i++ ) {
+                let relations = values[i].replace('\r', '').split('|');
+                this.table[ lineNumber ].push(relations);
+            }
+        }
+        this.types[ 'all' ] = { value: 'all', name: 'all', reversed: 'all' };
+        this.table[ 'all' ] = all;
+        for ( let i = 0; i < columns.length; i += 3 ) {
+            let name = columns[i];
+            let number = columns[i+2];
+            this.typesName[ name ] = number;
+        }
     }
 
     linkTheReversed() {
-        this.types[ 'all' ] = { value: '' };
         let keys = Object.keys( this.types );
         for ( let key of keys ) {
             let type = this.types[ key ];
@@ -26,7 +43,6 @@ export class RelationshipTypes {
                     console.error( type );
                     console.error('Reversed not found!');
                 }
-                this.types[ 'all' ].value += key;
             }
         }
     }
@@ -38,19 +54,22 @@ export class RelationshipTypes {
                 return console.log(err);
             } 
 
-            let lines = data.split('\n');
-            let header = lines[0];
-            let values = header.split(';');
-            for ( let i = 0; i < values.length; i += 3 ) {
-                let label = values[ i ];
-                let reversedLabel = values[ i + 1];
-                let labelValue = values[ i + 2 ]
+            const lines = data.split('\n');
+            let columns = lines.splice(0, 1)[0].replace('\r', '');
+            let headers = lines.splice(0, 1)[0].replace('\r', '');
+            let headerValues = headers.split(';');
+            let columnsValues = columns.split(';');
+            for ( let i = 0; i < columnsValues.length; i += 3 ) {
+                let label = columnsValues[ i ];
+                let reversedLabel = columnsValues[ i + 1];
+                let labelValue = columnsValues[ i + 2 ]
 
-                this.types[ label ] = { value: labelValue, reversed: reversedLabel };
+                this.types[ labelValue.trim() ] = { name: label, value: labelValue.trim(), reversed: reversedLabel };
             }
-
+            
+            this.buildTable( headerValues, columnsValues, lines );
             this.linkTheReversed();
-            this.done.next( true );
+            this.state.next( true );
         });
     }
 }

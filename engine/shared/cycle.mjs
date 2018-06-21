@@ -5,6 +5,9 @@ export class Cycle {
         }
         return this.id++;
     }
+    static resetId() {
+        this.id = 0;
+    }
        
     constructor( description ) {
         this.id = Cycle.getIdSequence();

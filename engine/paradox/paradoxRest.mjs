@@ -1,4 +1,4 @@
-import { ParadoxService } from './paradoxService..mjs';
+import { ParadoxService } from './paradoxService.mjs';
 
 export class ParadoxRest {
     constructor( server ) {

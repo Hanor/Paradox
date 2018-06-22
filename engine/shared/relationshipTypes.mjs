@@ -63,7 +63,6 @@ export class RelationshipTypes {
                 let label = columnsValues[ i ];
                 let reversedLabel = columnsValues[ i + 1];
                 let labelValue = columnsValues[ i + 2 ]
-
                 this.types[ labelValue.trim() ] = { name: label, value: labelValue.trim(), reversed: reversedLabel };
             }
             

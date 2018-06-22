@@ -5,6 +5,7 @@ export class ParadoxRest {
         this.server = server;
         this.paradoxService = new ParadoxService();
         this.methods();
+        this.paradoxService.run();
     }
     methods() {
         this.server.app.get('/api/paradox', (req, res) => {

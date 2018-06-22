@@ -77,12 +77,11 @@ export class ParadoxService {
         let allUnitedRelations = [];
         for ( let typeOne of relationsOne ) {
             for ( let typeTwo of relationsTwo) {
-                let valuesOne = this.relationType.table[ typeOne ][ typeTwo ];
-                let valuesTwo = this.relationType.table[ 2 ][ 2 ];
-                if ( valuesOne[0] === 'all' || valuesTwo[0] === 'all') {
+                let values = this.relationType.table[ typeOne ][ typeTwo -1];
+                if ( values[0] === 'all' ) {
                     return this.relationType.table['all'];
                 }
-                allUnitedRelations = new Set([ ...valuesOne, ...valuesTwo ]);
+                allUnitedRelations = new Set([ ...allUnitedRelations, ...values ]);
             }
         }
         return allUnitedRelations;

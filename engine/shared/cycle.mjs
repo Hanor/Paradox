@@ -9,10 +9,10 @@ export class Cycle {
         this.id = 0;
     }
        
-    constructor( description ) {
+    constructor( name ) {
         this.id = Cycle.getIdSequence();
         this.relationship = [];
-        this.description = description;
+        this.name = name;
     }
     
     addRelation( relationship ) {
@@ -23,9 +23,9 @@ export class Cycle {
     }
     getRelationshipByCycle( id ) {
         for ( let relation of this.relationship ) {
-            if ( relation.target.description === id ) {
+            if ( relation.target.id === id ) {
                 return relation.target;
-            } else if ( relation.source.description === id ) {
+            } else if ( relation.source.id === id ) {
                 return relation.source;
             }
         }

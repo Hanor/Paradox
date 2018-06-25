@@ -11,22 +11,23 @@ import { Cycle } from '../shared/cycle.mjs'
 export class ParadoxService {
     constructor() {
         this.relationType = new RelationshipTypes();
+        this.cycles = {};
+        this.relations = new Set();
     }
     addCycle( name ) {
-        const newCycle = new Cycle( name );
+        if ( this.cycles[name]) {
+            return this.cycles[ name ];
+        }
 
-        for ( let cycle of this.cycles ) {
+        let newCycle = new Cycle( name );
+        let cyclesKeys = Object.keys(this.cycles)
+        for ( let cycleKey of cyclesKeys ) {
+            let cycle = this.cycles[ cycleKey ];
             const toAdd = this.createRelation( newCycle, cycle, this.relationType.types[ 'all' ] );
             this.addRelation( toAdd );
         }
-        
-        /**
-         *  We need to validate this... why need to create a recursive path...
-         */
-        // const toAdd = this.createRelation( newCycle, newCycle, this.relationType.types[ this.relationType.typesName.equals ] );
-        // this.addRelation( toAdd );
 
-        this.cycles.push( newCycle );
+        this.cycles[ name ] = newCycle;
         return newCycle;
     }
     addRelation( toAdd ) {
@@ -35,8 +36,8 @@ export class ParadoxService {
         let networkNode = this.network[ normal.source.id + '-' + normal.target.id ];
 
         if ( !networkNode ) {
-            this.relations.push( normal );
-            this.relations.push( reversed );
+            this.relations.add( normal );
+            this.relations.add( reversed );
             this.createIntervalInNetwork( toAdd );
         } else {
             let reversedNetworkNode = this.network[ normal.target.id + '-' + normal.source.id ];
@@ -51,18 +52,6 @@ export class ParadoxService {
                 networkNode.add(normal.type.value);
                 reversedNetworkNode.add(reversed.type.value);
             }
-        }
-    }
-
-    createIntervalInNetwork( toAdd ) {
-        let i = toAdd.normal.source.id;
-        let j = toAdd.normal.target.id;
-        this.network[ i + '-' + j ] = new Set([ toAdd.normal.type.value ]);
-        this.network[ j + '-' + i ] = new Set([ toAdd.reversed.type.value ]);
-        if ( !this.network.size ) {
-            this.network.size = 1;
-        } else {
-            this.network.size += 1;
         }
     }
     betweenRelationship( relationsOne, relationsTwo ) {   
@@ -86,7 +75,17 @@ export class ParadoxService {
         }
         return allUnitedRelations;
     }
-    
+    createIntervalInNetwork( toAdd ) {
+        let i = toAdd.normal.source.id;
+        let j = toAdd.normal.target.id;
+        this.network[ i + '-' + j ] = new Set([ toAdd.normal.type.value ]);
+        this.network[ j + '-' + i ] = new Set([ toAdd.reversed.type.value ]);
+        if ( !this.network.size ) {
+            this.network.size = 1;
+        } else {
+            this.network.size += 1;
+        }
+    }   
     createRelation(source, target, relationType) {
         const relationNormal = new Relationship( source, target, relationType );
         const relationReversed = new Relationship( target, source, relationType.reversed );
@@ -96,52 +95,59 @@ export class ParadoxService {
 
         return { normal: relationNormal, reversed: relationReversed};
     }
-
+    findCycleByName( name ) {
+        return this.cycles[ name ];
+    }
     initialize() {
-        this.relations = [];
-        this.cycles = [];
+        this.relations.clear();
+        this.cycles = {};
         this.network = {};
         Cycle.resetId();
     }
-
     intersectRelationship( relationsOne, relationsTwo ) {
         if ( relationsTwo.has( 'all' ) ) {
             return relationsOne;
         }
         return new Set([ relationsOne ].filter( relation => relationsTwo.has( relation )));
     }
+    test( graphToCreate ) {
+        for ( let node  of graphToCreate ) {
+            const cycle = this.addCycle(node[0]);
+            let relationType = node[1].trim();
+            if ( relationType && relationType != '' ) {
+                if ( node[2] && node[2] != '' ) {
+                    let target = node[2].replace('\r', '');
+                    let targetCycle = this.findCycleByName( target );
+                    
+                    if ( !targetCycle ) {
+                        throw 'Your graph file is inconsistent.. your relation cannot be created';
+                    }
 
-    test() {
-        const cycleA = this.addCycle('a');
-        const cycleB = this.addCycle('b');
-        const cycleC = this.addCycle('c');
-
-        const relationBefore = this.relationType.types[ this.relationType.typesName.before ];
-        const relationDuring = this.relationType.types[ this.relationType.typesName.during ];
-
-        const relationsOne = this.createRelation( cycleA, cycleB, relationBefore );
-        const relationsTwo = this.createRelation( cycleA, cycleC,  relationDuring);
-
-        this.addRelation( relationsOne );
-        let consistent = this.updateNetwork( relationsOne );
-        console.log("First:")
-        console.log( consistent )
-
-        this.addRelation( relationsTwo );
-        consistent = this.updateNetwork( relationsTwo );
-
-        console.log("Second:")
-        console.log( consistent )
+                    const relation = this.relationType.types[ this.relationType.typesName[relationType]];
+                    const relations = this.createRelation( cycle, targetCycle, relation );
+                    this.addRelation( relations );
+                    let consistent = this.updateNetwork( relations );
+                    if ( consistent ) {
+                        console.log('consistent')
+                    } else {
+                        console.log('not consistent');
+                    }
+                } else {
+                    console.log(node)
+                    throw 'You cannot create a relation without a target node.';
+                }
+            }
+        }
     }
-    run() {
+    run( graphToCreate ) {
         if ( this.relationType.state.getValue() ) {
             this.initialize();
-            return this.test();
+            return this.test( graphToCreate );
         } else {
             this.relationType.state.subscribe(( state ) => {
                 if ( state ) {
                     this.initialize();
-                    return this.test();
+                    return this.test( graphToCreate );
                 }
             })
         }

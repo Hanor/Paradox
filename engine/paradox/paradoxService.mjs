@@ -23,8 +23,7 @@ export class ParadoxService {
         let cyclesKeys = Object.keys(this.cycles)
         for ( let cycleKey of cyclesKeys ) {
             let cycle = this.cycles[ cycleKey ];
-            const toAdd = this.createRelation( newCycle, cycle, this.relationType.types[ 'all' ] );
-            this.addRelation( toAdd );
+            this.createIntervalInNetwork( newCycle.id, cycle.id );
         }
 
         this.cycles[ name ] = newCycle;
@@ -34,25 +33,10 @@ export class ParadoxService {
         let normal = toAdd.normal;
         let reversed = toAdd.reversed;
         let networkNode = this.network[ normal.source.id + '-' + normal.target.id ];
-
-        if ( !networkNode ) {
-            this.relations.add( normal );
-            this.relations.add( reversed );
-            this.createIntervalInNetwork( toAdd );
-        } else {
-            let reversedNetworkNode = this.network[ normal.target.id + '-' + normal.source.id ];
-            if ( networkNode.has('all')) {
-                
-                networkNode.add( normal.type.value );
-                reversedNetworkNode.add( reversed.type.value );
-
-                networkNode.delete('all');
-                reversedNetworkNode.delete('all');
-            } else {
-                networkNode.add(normal.type.value);
-                reversedNetworkNode.add(reversed.type.value);
-            }
-        }
+        let reversedNetworkNode = this.network[ normal.target.id + '-' + normal.source.id ];
+    
+        networkNode.add(normal.type.value);
+        reversedNetworkNode.add(reversed.type.value);
     }
     betweenRelationship( relationsOne, relationsTwo ) {   
         /* 
@@ -63,23 +47,22 @@ export class ParadoxService {
                         C ~ C U T(rl, r2);
                 Return C;
         */
-        let allUnitedRelations = [];
+        // avaliar se colocamos com ALL quando for vazio o relacionamento
+        let allUnitedRelations = new Set();
         for ( let typeOne of relationsOne ) {
             for ( let typeTwo of relationsTwo) {
                 let values = this.relationType.table[ typeOne ][ typeTwo -1];
-                if ( values[0] === 'all' ) {
-                    return this.relationType.table['all'];
+                if ( values.length === 13 ) {
+                    return values;
                 }
                 allUnitedRelations = new Set([ ...allUnitedRelations, ...values ]);
             }
         }
         return allUnitedRelations;
     }
-    createIntervalInNetwork( toAdd ) {
-        let i = toAdd.normal.source.id;
-        let j = toAdd.normal.target.id;
-        this.network[ i + '-' + j ] = new Set([ toAdd.normal.type.value ]);
-        this.network[ j + '-' + i ] = new Set([ toAdd.reversed.type.value ]);
+    createIntervalInNetwork( source, target ) {
+        this.network[ source + '-' + target ] = new Set();
+        this.network[ target + '-' + source ] = new Set();
         if ( !this.network.size ) {
             this.network.size = 1;
         } else {
@@ -105,10 +88,9 @@ export class ParadoxService {
         Cycle.resetId();
     }
     intersectRelationship( relationsOne, relationsTwo ) {
-        if ( relationsTwo.has( 'all' ) ) {
-            return relationsOne;
-        }
-        return new Set([ relationsOne ].filter( relation => relationsTwo.has( relation )));
+        return new Set([ ...relationsOne ].filter( (relation) => {
+            return relationsTwo.has( relation )
+        }));
     }
     test( graphToCreate ) {
         for ( let node  of graphToCreate ) {
@@ -126,6 +108,7 @@ export class ParadoxService {
                     const relation = this.relationType.types[ this.relationType.typesName[relationType]];
                     const relations = this.createRelation( cycle, targetCycle, relation );
                     this.addRelation( relations );
+                // console.log( this.network )
                     let consistent = this.updateNetwork( relations );
                     if ( consistent ) {
                         console.log('consistent')
@@ -154,10 +137,10 @@ export class ParadoxService {
         
     }
     unionRelationship( networkOne, networkTwo ) {
-        if ( !networkOne.has( 'all' ) && !networkTwo.has( 'all' )) {
+        if ( networkOne.size !== 13 && !networkTwo.size !== 13) {
             return this.betweenRelationship(networkOne, networkTwo);
         } else {
-            return new Set([...this.relationType.table['all']]);
+            return new Set(this.relationType.table['all'][0]);
         }
     }
     updateNetwork( add ) {
@@ -165,39 +148,42 @@ export class ParadoxService {
         let key = add.normal.source.id + '-' + add.normal.target.id;
         batchStack.push( key );
 
-        // add.processed = true;
-        // add.source.processed = true;
-
         while( batchStack.length > 0 ) {
             key = batchStack.splice(0, 1)[0];
-            let i = key.split('-')[0];
-            let j = key.split('-')[1];
+            let i = key.split('-')[1];
+            let j = key.split('-')[0];
             for ( let k = 0; k < this.network.size; k++) {
                 if ( k != j && k != i ) {
                     let networkKAndJ = this.network[ k + '-' + j ];
+                    let networkJAndK = this.network[ j + '-' + k ];
                     let networkIAndK = this.network[ i + '-' + k ];
                     let networkKAndI = this.network[ k + '-' + i ]; // maybe this is the reversed relation right ? If is, we only need to get the reversed in the network.
                     let networkIAndJ = this.network[ key ];
-                    let unitedRelationsIAndK = this.unionRelationship( networkIAndJ, networkIAndK );
+                    
                     let unitedRelationsKAndj = this.unionRelationship( networkKAndI, networkIAndJ );
+                    let newRelationsKAndJ = this.intersectRelationship( networkKAndJ, unitedRelationsKAndj);
+                    let unitedRelationsIAndK = this.unionRelationship( networkIAndJ, networkJAndK );
+                    let newRelationsIAndK = this.intersectRelationship( networkIAndK, unitedRelationsIAndK );
 
-                    // console.log( unitedRelationsIAndK )
-                    // console.log(networkIAndK)
-                    // console.log( unitedRelationsKAndj )
-                    // console.log(networkKAndJ)
-
-                    let newRelationsIAndK = this.intersectRelationship( unitedRelationsIAndK, networkIAndK);
-                    let newRelationsKAndJ = this.intersectRelationship( unitedRelationsKAndj, networkKAndJ);
                     if ( newRelationsIAndK.size === 0 || newRelationsKAndJ.size === 0 ) {
                         return false;
                     }
-                    if ( newRelationsIAndK != networkIAndK) {
-                        batchStack.push(i + '-' + k);
-                        this.network[ i + '-' + k ] = newRelationsIAndK;
-                    }
-                    if ( newRelationsKAndJ  != networkKAndJ) {
-                        batchStack.push(j + '-' + k);
+                
+                    // maybe we need to make a intersection beetween of newRelationsKAndJ and networkKAndJ
+                    // that should be equal newRelationsKAndJ
+                    // besides that, maybe we need to comapre the keys and not the full object
+                    if ( newRelationsKAndJ != networkKAndJ ) {
+                        // need to validate if have the batch stack of the key to not push again
+                        batchStack.push( k + '-' + j )
+                        batchStack.push( j + '-' + k )
                         this.network[ k + '-' + j ] = newRelationsKAndJ;
+                        // need to update the reverse to
+                    }
+                    // the some
+                    if ( newRelationsIAndK !=  networkIAndK ) {
+                        batchStack.push( i + '-' + k )
+                        batchStack.push( k + '-' + i )
+                        this.network[ i + '-' + k ] = newRelationsIAndK;
                     }
                 }
             }

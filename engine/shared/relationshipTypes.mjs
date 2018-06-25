@@ -13,19 +13,19 @@ export class RelationshipTypes {
         this.processFile();
     }
     buildTable( headers, columns, lines ) {
-        const all = [];
         for ( let line of lines ) {
             let values =  line.split(';');
             let lineNumber = values.splice(0, 1)[0];
             this.table[ lineNumber ] = [];
-            all.push( lineNumber );
             for ( let i = 0; i < values.length; i++ ) {
                 let relations = values[i].replace('\r', '').split('|');
-                this.table[ lineNumber ].push(relations);
+                if ( relations !== 'all' ) {
+                    this.table[ lineNumber ].push(relations);
+                } else {
+                    this.table[ lineNumber ].push( new Array( headers ) );                    
+                }
             }
         }
-        this.types[ 'all' ] = { value: 'all', name: 'all', reversed: 'all' };
-        this.table[ 'all' ] = all;
         for ( let i = 0; i < columns.length; i += 3 ) {
             let name = columns[i];
             let number = columns[i+2];

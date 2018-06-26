@@ -1,5 +1,3 @@
 nodeName;relationType;target
 b;
-c;
-a;starts;b
-c;contains;a
+a;before;b

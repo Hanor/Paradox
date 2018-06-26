@@ -1,6 +1,7 @@
 import { Relationship } from '../shared/relationship.mjs';
 import { RelationshipTypes } from '../shared/relationshipTypes.mjs';
 import { Cycle } from '../shared/cycle.mjs'
+import rxjs from 'rxjs';
 
 /*
  *
@@ -14,6 +15,7 @@ export class ParadoxService {
         this.cycles = {};
         this.initialized = {};
         this.relations = new Array();
+        this.runned = new rxjs.BehaviorSubject();
     }
     addCycle( name ) {
         if ( this.cycles[name]) {
@@ -46,13 +48,12 @@ export class ParadoxService {
             this.initialized[ keyOne ] = true;
         }
         if ( this.initialized[ keyTwo ] ) {
-            reversedNetworkNode.add(normal.type.value);
+            reversedNetworkNode.add(reversed.type.value);
         } else {
             reversedNetworkNode.clear();
             reversedNetworkNode.add(reversed.type.value);
             this.initialized[ keyTwo ] = true;
         }
-        reversedNetworkNode.add(reversed.type.value);
         this.relations.push( toAdd.normal );
         this.relations.push( toAdd.reversed );
     }
@@ -81,8 +82,9 @@ export class ParadoxService {
     createGraph( graphData ) {
         for ( let node  of graphData ) {
             const cycle = this.addCycle(node[0]);
-            let relationType = node[1].trim().toLowerCase();
+            let relationType = (node[1]) ? node[1].trim() : null;
             if ( relationType && relationType != '' ) {
+                relationType = relationType.toLowerCase();
                 if ( node[2] && node[2] != '' ) {
                     let target = node[2].replace('\r', '');
                     let targetCycle = this.findCycleByName( target );
@@ -129,6 +131,7 @@ export class ParadoxService {
         this.relations.splice(0, this.relations.length - 1);
         this.cycles = {};
         this.network = {};
+        this.initialized = {};
         Cycle.resetId();
     }
     intersectRelationship( relationsOne, relationsTwo ) {
@@ -170,20 +173,28 @@ export class ParadoxService {
         return reversed;
     }
     run( graphToCreate ) {
-        if ( this.relationType.state.getValue() ) {
-            this.initialize();
-            this.createGraph( graphToCreate )
-            return {network: this.network, consistent:this.updateNetwork( this.relations[0] )} ;
-        } else {
-            this.relationType.state.subscribe(( state ) => {
-                if ( state ) {
-                    this.initialize();
-                    this.createGraph( graphToCreate )
-                    return {network: this.network, consistent:this.updateNetwork( this.relations[0] )} ;
-                }
-            })
-        }
-        
+        return rxjs.Observable.create(( observer ) => {
+            if ( this.relationType.state.getValue() ) {
+                this.initialize();
+                this.createGraph( graphToCreate )
+                let init = new Date();
+                let consistent = this.updateNetwork( this.relations[0] );
+                let end = new Date();
+                observer.next({network: this.network, consistent: consistent, time: end.getTime() - init.getTime()});
+                // return {network: this.network, consistent: consistent};
+            } else {
+                this.relationType.state.subscribe(( state ) => {
+                    if ( state ) {
+                        this.initialize();
+                        this.createGraph( graphToCreate )
+                        let init = new Date();
+                        let consistent = this.updateNetwork( this.relations[0] );
+                        let end = new Date();
+                        observer.next({network: this.network, consistent: consistent, time: end.getTime() - init.getTime()});
+                    }
+                })
+            }
+        })
     }
     unionRelationship( relationsOne, relationsTwo ) {
         if ( !relationsOne || !relationsTwo ) {
@@ -228,8 +239,6 @@ export class ParadoxService {
                         let keyOne = k + '-' + j;
                         let keyTwo = j + '-' + k;
                         // updating the cache and updating the stack
-
-                        console.log( cacheStack )
                         this.updateNetworkStack( stack, cacheStack, keyOne, keyTwo );
                         this.updateNetworkRelations( newRelationsIAndK, keyOne, keyTwo )
                     }

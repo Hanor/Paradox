@@ -10,6 +10,7 @@ export class RelationshipTypes {
         this.typesName = {};
         this.types = {};
         this.table = {};
+        this.all = [];
         this.processFile();
     }
     buildTable( headers, columns, lines ) {
@@ -31,6 +32,7 @@ export class RelationshipTypes {
             let number = columns[i+2];
             this.typesName[ name ] = number;
         }
+        this.all = headers;
     }
 
     linkTheReversed() {

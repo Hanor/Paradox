@@ -34,7 +34,8 @@ export class ParadoxRest {
                 for ( let line of lines ) {
                     graphLines.push( line.split(';'))
                 }
-                this.paradoxService.run( graphLines );
+                let response = this.paradoxService.run( graphLines );
+                console.log(response)
             } 
         });
     }

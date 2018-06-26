@@ -225,28 +225,27 @@ export class ParadoxService {
                     let networkKAndI = this.network[ k + '-' + i ]; // maybe this is the reversed relation right ? If is, we only need to get the reversed in the network.
                     let networkIAndJ = this.network[ key ];
 
-                    let unitedRelationsKAndj = this.unionRelationship( networkKAndI, networkIAndJ );
-                    let newRelationsKAndJ = this.intersectRelationship( networkKAndJ, unitedRelationsKAndj);
-                    let unitedRelationsIAndK = this.unionRelationship( networkIAndJ, networkJAndK );
-                    let newRelationsIAndK = this.intersectRelationship( networkIAndK, unitedRelationsIAndK );
+                    let unitedRelationsKAndI = this.unionRelationship( networkKAndI, networkIAndJ );
+                    let newRelationsKAndJ = this.intersectRelationship( unitedRelationsKAndI, networkKAndJ );
+
+                    let unitedRelationsIAndK = this.unionRelationship( networkJAndK, networkIAndJ );
+                    let newRelationsIAndK = this.intersectRelationship( unitedRelationsIAndK, networkIAndK );
 
                     if ( newRelationsIAndK.size === 0 || newRelationsKAndJ.size === 0 ) {
                         return false;
                     }
-                    
                     if ( this.isNetworkRelationshipChanged( networkKAndJ, newRelationsKAndJ )) {
                         // need to validate if have the batch stack of the key to not push again
                         let keyOne = k + '-' + j;
                         let keyTwo = j + '-' + k;
                         // updating the cache and updating the stack
                         this.updateNetworkStack( stack, cacheStack, keyOne, keyTwo );
-                        this.updateNetworkRelations( newRelationsIAndK, keyOne, keyTwo )
+                        this.updateNetworkRelations( newRelationsKAndJ, keyOne, keyTwo )
                     }
-                    if ( this.isNetworkRelationshipChanged( networkKAndJ, newRelationsKAndJ )) {
+                    if ( this.isNetworkRelationshipChanged( networkIAndK, newRelationsIAndK )) {
                         let keyOne = i + '-' + k;
                         let keyTwo = k + '-' + i;
                         // updating the cache and updating the stack
-                        console.log( cacheStack )
                         this.updateNetworkStack( stack, cacheStack, keyOne, keyTwo );
                         this.updateNetworkRelations( newRelationsIAndK, keyOne, keyTwo )
                     }

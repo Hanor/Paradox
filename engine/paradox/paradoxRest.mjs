@@ -22,14 +22,11 @@ export class ParadoxRest {
          */
         this.server.app.post('/api/paradox', (req, res) => {
             this.paradoxService.run( req.body.graph ).subscribe(( response ) => {
-                let network = response.network
-                let keys = Object.keys(network);
-                for ( let key of keys ) {
-                    if ( key !== 'size' ) {
-                        network[ key ] = [...network[ key ]]
-                    }
+                if ( response.network ) {
+                    res.send( JSON.stringify( response ));
+                } else {
+                    res.send({err: "Cannot evaluate." });
                 }
-                res.send( JSON.stringify( response ));
             })
             // console.log( response )
         })

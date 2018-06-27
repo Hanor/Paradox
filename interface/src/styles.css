@@ -5,20 +5,26 @@ html, body {
     margin: 0px;
     padding: 0px;
     background: rgb(11, 1, 19);
+    font-family: verdana, helvetica;
 }
 
 .links path {
-    stroke: #999;
-    stroke-opacity: 0.6;
+    stroke: #fff;
+    stroke-opacity: 1;
 }
   
 .nodes circle {
     stroke: #fff;
     stroke-width: 1.5px;
+    fill: rgb(245, 24, 91);
 }
 .view {
     stroke:none;
     fill:none;
+}
+.text text {
+    font-size: 18px;
+    fill: white;
 }
 .relation-text {
     font-size: 18px;

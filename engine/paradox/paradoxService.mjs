@@ -13,6 +13,7 @@ export class ParadoxService {
     constructor() {
         this.relationType = new RelationshipTypes();
         this.cycles = {};
+        this.cyclesName = {};
         this.initialized = {};
         this.relations = new Array();
         this.runned = new rxjs.BehaviorSubject();
@@ -28,7 +29,7 @@ export class ParadoxService {
             let cycle = this.cycles[ cycleKey ];
             this.createIntervalInNetwork( newCycle.id, cycle.id );
         }
-
+        this.cyclesName[ newCycle.id ] = name;
         this.cycles[ name ] = newCycle;
         return newCycle;
     }
@@ -82,9 +83,9 @@ export class ParadoxService {
     createGraph( graphData ) {
         for ( let node  of graphData ) {
             const cycle = this.addCycle(node[0]);
-            let relationType = (node[1]) ? node[1].trim() : null;
-            if ( relationType && relationType != '' ) {
-                relationType = relationType.toLowerCase();
+            let types = (node[1]) ? node[1].trim() : null;
+            if ( types && types != '' ) {
+                types = types.toLowerCase();
                 if ( node[2] && node[2] != '' ) {
                     let target = node[2].replace('\r', '');
                     let targetCycle = this.findCycleByName( target );
@@ -95,10 +96,12 @@ export class ParadoxService {
                     if ( targetCycle === cycle ) {
                         throw 'Little locust, sorry but this implementation cannot have cicle in the grapth =(, like a before a.'
                     }
-
-                    const relation = this.relationType.types[ this.relationType.typesName[relationType]];
-                    const relations = this.createRelation( cycle, targetCycle, relation );
-                    this.addRelation( relations );
+                    let typesR = types.split(',');
+                    for ( let type of typesR ) {
+                        const relation = this.relationType.types[ this.relationType.typesName[type]];
+                        const relations = this.createRelation( cycle, targetCycle, relation );
+                        this.addRelation( relations );
+                    }
                 } else {
                     console.log(node)
                     throw 'You cannot create a relation without a target node.';
@@ -165,6 +168,21 @@ export class ParadoxService {
         });
         return false;
     }
+    namedNetwork() {
+        let namedNetwork = {};
+        let keys = Object.keys( this.network );
+        for ( let key of keys ) {
+            if ( key !== 'size') {
+                let net = this.network[key];
+                let newKey = this.cyclesName[ key.split('-')[0] ] + '-' + this.cyclesName[ key.split('-')[1] ];
+                namedNetwork[ newKey ] = []
+                for ( let value of net ) {
+                    namedNetwork[ newKey ].push( this.relationType.types[ value ].name );
+                }
+            }
+        }
+        return namedNetwork;
+    }
     reversedRelations( relations ) {
         const reversed  = new Set([]);
         for( let relation of relations )  {
@@ -175,24 +193,33 @@ export class ParadoxService {
     run( graphToCreate ) {
         return rxjs.Observable.create(( observer ) => {
             if ( this.relationType.state.getValue() ) {
-                this.initialize();
-                this.createGraph( graphToCreate )
-                let init = new Date();
-                let consistent = this.updateNetwork( this.relations[0] );
-                let end = new Date();
-                observer.next({network: this.network, consistent: consistent, time: end.getTime() - init.getTime()});
-                // return {network: this.network, consistent: consistent};
-            } else {
-                this.relationType.state.subscribe(( state ) => {
-                    if ( state ) {
-                        this.initialize();
-                        this.createGraph( graphToCreate )
-                        let init = new Date();
-                        let consistent = this.updateNetwork( this.relations[0] );
-                        let end = new Date();
-                        observer.next({network: this.network, consistent: consistent, time: end.getTime() - init.getTime()});
-                    }
-                })
+                try {
+                    this.initialize();
+                    this.createGraph( graphToCreate )
+                    let init = new Date();
+                    let consistent = this.updateNetwork( this.relations[0] );
+                    let end = new Date();
+                    let namedNetwork = this.namedNetwork();
+                    observer.next({network: namedNetwork, consistent: consistent, time: end.getTime() - init.getTime()});
+                } catch (ex) {
+                    observer.next(ex)
+                }
+            } else { 
+                try {
+                    this.relationType.state.subscribe(( state ) => {
+                        if ( state ) {
+                            this.initialize();
+                            this.createGraph( graphToCreate )
+                            let init = new Date();
+                            let consistent = this.updateNetwork( this.relations[0] );
+                            let end = new Date();
+                            let namedNetwork = this.namedNetwork();
+                            observer.next({network: namedNetwork, consistent: consistent, time: end.getTime() - init.getTime()});
+                        }
+                    })
+                } catch (ex) {
+                    observer.next(ex)
+                }
             }
         })
     }

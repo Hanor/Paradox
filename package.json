@@ -4,7 +4,7 @@
     "license": "MIT",
     "main": "engine/main.mjs",
     "scripts": {
-        "start": "npm install -g @angular/cli && cd interface && ng build && cd ../ && node --experimental-modules engine/main.mjs"
+        "start": "npm install -g @angular/cli && npm install --save-dev @angular-devkit/build-angular && cd interface && ng build && cd ../ && node --experimental-modules engine/main.mjs"
     },
     "author": "Hanor Sátiro Cintra",
     "dependencies": {

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GraphViewerService } from './graphViewer.service';
-const d3 = require('d3');
+import * as d3 from 'd3';
 
 @Component({
   selector: 'app-graph-viewer',
@@ -32,8 +32,8 @@ export class GraphViewerComponent implements OnInit {
     const a = { id: 'a', group: 1, nodeGroup: 0};
     const b = { id: 'b', group: 1, nodeGroup: 0};
     const c = { id: 'c', group: 1, nodeGroup: 0};
-    const aToB = { source: a, target: b,  value: '1', name: 'starts', key: a.id + '-' + b.id };
-    const bToC = { source: b, target: c,  value: '1', name: 'starts', key: b.id + '-' + c.id };
+    const aToB = { source: a, target: b,  value: '1', name: 'before', key: a.id + '-' + b.id };
+    const bToC = { source: b, target: c,  value: '1', name: 'before', key: b.id + '-' + c.id };
 
     this.graph.nodes.push( a );
     this.graph.nodes.push( b );
@@ -42,6 +42,9 @@ export class GraphViewerComponent implements OnInit {
     this.graph.links.push( bToC );
   }
   addRelation() {
+    if ( !this.nodeToAdd.source || !this.nodeToAdd.target || !this.nodeToAdd.relations) {
+      return;
+    }
     let source = this.nodeToAdd.source;
     let target = this.nodeToAdd.target;
     let relations = this.nodeToAdd.relations;
@@ -147,8 +150,7 @@ export class GraphViewerComponent implements OnInit {
     this.engine = d3.forceSimulation(self.graph.nodes)
       .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(200))
       .force("charge", d3.forceManyBody())
-      .force('x', d3.forceX())
-      .force('y', d3.forceY())
+      .force("center", d3.forceCenter())
       .force("attraceForce",d3.forceManyBody().strength(-100))
       .on('tick', ticked);
 
@@ -203,9 +205,11 @@ export class GraphViewerComponent implements OnInit {
     this.restart();
 
     function dragstarted(d) {
-      if (!d3.event.active) self.engine.alphaTarget(0.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
+      if (!d3.event.active) {
+        self.engine.alphaTarget(0.3).restart();
+      }
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
     }
     
     function dragged(d) {
@@ -214,9 +218,13 @@ export class GraphViewerComponent implements OnInit {
     }
     
     function dragended(d) {
-      if (!d3.event.active) self.engine.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
+      if (!d3.event.active) {
+        self.engine.alphaTarget(0.3).restart();
+      }
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+      d.x = d3.event.x;
+      d.y = d3.event.y;
     }
 
     function ticked() {

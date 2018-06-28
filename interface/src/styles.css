@@ -16,7 +16,7 @@ html, body {
 .nodes circle {
     stroke: #fff;
     stroke-width: 1.5px;
-    fill: rgb(245, 24, 91);
+    fill: rgb(0, 132, 255);
 }
 .view {
     stroke:none;

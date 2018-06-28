@@ -20,10 +20,10 @@ export class RelationshipTypes {
             this.table[ lineNumber ] = [];
             for ( let i = 0; i < values.length; i++ ) {
                 let relations = values[i].replace('\r', '').split('|');
-                if ( relations !== 'all' ) {
-                    this.table[ lineNumber ].push(relations);
+                if ( relations[0] !== 'all' ) {
+                    this.table[ lineNumber ][i+1] = relations;
                 } else {
-                    this.table[ lineNumber ].push( new Array( headers ) );                    
+                    this.table[ lineNumber ][i+1] = headers;                   
                 }
             }
         }

@@ -1,4 +1,4 @@
-export class Cycle {
+export class Node {
     static getIdSequence() {
         if ( !this.id ) {
          this.id = 0;
@@ -10,7 +10,7 @@ export class Cycle {
     }
        
     constructor( name ) {
-        this.id = Cycle.getIdSequence();
+        this.id = Node.getIdSequence();
         this.relationship = [];
         this.name = name;
     }
@@ -21,7 +21,7 @@ export class Cycle {
     getRelationship() {
         return this.relationship;
     }
-    getRelationshipByCycle( id ) {
+    getRelationshipByNode( id ) {
         for ( let relation of this.relationship ) {
             if ( relation.target.id === id ) {
                 return relation.target;

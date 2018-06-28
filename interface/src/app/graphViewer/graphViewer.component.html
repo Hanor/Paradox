@@ -9,13 +9,13 @@
     <input #target type = "text" placeholder = "target name" (change) = "nodeToAdd.target = target.value">
   </div>
   <div class = "input-node-add" (click) = "addRelation()">
-    Add
+    Add node
+  </div>
+  <div class = "input-node-reset" (click) = "resetNetwork()">
+    Reset network
   </div>
   <div class = "input-node-execute-allen" (click) = "executeAllen()">
     Execute allen
-  </div>
-  <div class = "input-node-reset" (click) = "resetNetwork()">
-    Reset
   </div>
 </div>
 <div class = "viewer">

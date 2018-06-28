@@ -1,10 +1,10 @@
 {
     "name": "paradox",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "license": "MIT",
     "main": "engine/main.mjs",
     "scripts": {
-        "start": "node --experimental-modules engine/main.mjs"
+        "start": "npm install -g @angular/cli && cd interface && ng build && cd ../ && node --experimental-modules engine/main.mjs"
     },
     "author": "Hanor Sátiro Cintra",
     "dependencies": {

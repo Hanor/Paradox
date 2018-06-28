@@ -1,6 +1,6 @@
 nodeName;relationType;target
-0;
-1;
-2;
-0;starts,during;1
-1;starts;2
+a;
+b;
+c;
+a;meets;b
+b;starts;c

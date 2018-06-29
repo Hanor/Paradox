@@ -3,4 +3,5 @@ a;
 b;
 c;
 a;meets;b
-b;starts;c
+b;meets;c
+c;before;a

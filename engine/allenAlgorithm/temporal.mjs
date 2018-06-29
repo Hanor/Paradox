@@ -102,9 +102,10 @@ export class Temporal {
     }
     execute() {
         const stack = new Array();
-        const fistRelation = this.relations[0];
+        const last = this.relations[ this.relations.length - 2 ];
+        console.log(last)
         let cacheStack = '';
-        let key = fistRelation.source.id + '-' + fistRelation.target.id;
+        let key = last.source.id + '-' + last.target.id;
         cacheStack += '[' + key + ']';
         stack.push( key );
         while( stack.length > 0 ) {
@@ -127,6 +128,12 @@ export class Temporal {
                     let intersectionIK = this.intersection( ik, compositionIK );
 
                     if ( intersectionIK.size === 0 || intersectionKJ.size === 0 ) {
+                        console.log(ki)
+                        console.log(ij)
+                        console.log(kj)
+                        console.log(this.relationType.table[10][7]);
+                        console.log(compositionKJ)
+                        console.log(intersectionKJ)
                         return false;
                     }
                     if ( this.isNetworkRelationshipChanged( kj, intersectionKJ )) {

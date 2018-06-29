@@ -5,6 +5,9 @@
     - The principal part of the allen algorithm is in execute method , the execute is the "path consistent" and we are using the last normal(not reversed) relation beetween two nodes;
 # Awesome
 
+# To acess
+    You can access the application in: http://paradoxallen.herokuapp.com/, however, this is free then HEROKU can disable this.
+
 # To execute
     You need the Node.js installed in your machine.
     

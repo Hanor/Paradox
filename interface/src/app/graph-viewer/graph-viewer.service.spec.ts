@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { GraphViewerService } from './graphViewer/graphViewer.service';
+import { GraphViewerService } from './graph-viewer/graph-viewer.service';
 
 describe('GraphViewerService', () => {
   beforeEach(() => {

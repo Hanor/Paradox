@@ -1,0 +1,12 @@
+<div class = "viewer">
+  <svg id = "svg-viewer" width = '800' height = '500' ></svg>
+</div>
+<div class = "allen-result" *ngIf = 'allenResult'>
+  <div [ngClass] = "{'allen-status': true, 'allen-error': allenResult.err || !allenResult.consistent, 'allen-executed': !allenResult.err && allenResult.consistent }"></div>
+  <div class = "allen-consistent">
+    {{ allenResultIsConsistent() }} {{ allenResultTime() }}
+  </div>
+  <div class = "allen-network">
+    {{ allenResultNetwork() }}
+  </div>
+</div>

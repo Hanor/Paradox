@@ -22,7 +22,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": []
           },
@@ -124,5 +124,10 @@
       }
     }
   },
-  "defaultProject": "paradox"
+  "defaultProject": "paradox",
+  "schematics": {
+    "@schematics/angular:component": {
+      "styleext": "scss"
+    }
+  }
 }

@@ -1,0 +1,45 @@
+.viewer {
+    float: left;
+    width: calc(100vw);
+    height: calc(100vh - 60px);
+    overflow: hidden;
+}
+.allen-status {
+    float: left;
+    width: 100%;
+    height: 20px;
+}
+.allen-executed {
+    background: rgba(3, 255, 112, 0.665);
+}
+.allen-error {
+    background: rgb(237, 5, 28);
+}
+.allen-result {
+    float: left;
+    width: calc(100vw);
+    height: auto;
+    background: rgba(255,255,255, 0.3);
+    font-size: 14px;
+    z-index: 10;
+    word-wrap: break-word;
+    padding-bottom: 10px;
+}
+.allen-consistent {
+    float: left;
+    height: 100%;
+    padding-left: 20px;
+    padding: 5px;
+}
+.allen-network {
+    float: left;
+    height: 100%;
+    width: 100%;
+    padding-left: 20px;
+    padding: 5px;
+}
+#svg-viewer {
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+}

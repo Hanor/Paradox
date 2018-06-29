@@ -1,0 +1,33 @@
+.nav-bar {
+    float: left;
+    width: 100%;
+    min-height: 50px;
+    z-index: 5000;
+}
+.nav-bar-name {
+    float: left;
+    height: 100%;
+    text-align: center;
+    padding-left: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: Helvetica, verdana;
+    line-height: 50px;
+    cursor: pointer;
+}
+.nav-bar-name:hover {
+    text-shadow: 0px 0px 12px white;
+}
+
+.nav-bar-options {
+    float: left;
+    height: 100%;
+    margin-left: 50px;
+}
+
+.container {
+    float: left;
+    position: relative;
+    width: calc(100% - 10px);
+    height: calc(100% - 150px);
+}

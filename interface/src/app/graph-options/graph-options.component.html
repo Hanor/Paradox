@@ -1,0 +1,20 @@
+<div class = "options">
+    <div class = "zen-input">
+      <input #source type = "text" placeholder = "source name" (change) = "nodeToInput.source = source.value">
+    </div>
+    <div class = "zen-input">
+      <input #relation type = "text" placeholder = "node relation" (change) = "nodeToInput.relations = relation.value">
+    </div>
+    <div class = "zen-input">
+      <input #target type = "text" placeholder = "target name" (change) = "nodeToInput.target = target.value">
+    </div>
+    <div class = "zen-btn zen-add" (click) = "addRelation()" title="Add node">
+      <span class = "fa fa-plus"></span>
+    </div>
+    <div class = "zen-btn zen-reset" (click) = "resetNetwork()" title="reset graph">
+      <span class = "fa fa-refresh"></span>
+    </div>
+    <div class = "zen-btn zen-execute-allen" (click) = "execute()" title="execute allen">
+      <span class = "fa fa-play"></span>
+    </div>
+  </div>

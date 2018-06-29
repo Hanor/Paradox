@@ -2,13 +2,15 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { GraphViewerComponent } from './graphViewer/graphViewer.component';
+import { GraphViewerComponent } from './graph-viewer/graph-viewer.component';
 import { HttpClientModule } from '@angular/common/http';
+import { GraphOptionsComponent } from './graph-options/graph-options.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    GraphViewerComponent
+    GraphViewerComponent,
+    GraphOptionsComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,42 @@
+.options {
+    float: left;
+    width: 100%;
+    min-height: 40px;
+    padding-top: 5px;
+    z-index: 2
+}
+.zen-input {
+    float: left;
+    width: 120px;
+    height: 40px;
+    margin-left: 20px;
+}
+
+.zen-btn {
+    float: left;
+    height: 40px;
+    line-height: 40px;
+    font-size: 12px;
+    cursor: pointer;
+    width: 40px;
+    text-align: center;
+}
+.zen-btn:hover {
+    text-shadow: 0px 0px 10px white;
+    background: rgba(255, 255, 255, 0.2)
+}
+
+input {
+    outline: none;
+    border: none;
+    background: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.822);
+    height: 30px;
+    width: 120px;
+    color: rgba(226, 213, 213, 0.981);
+    text-align: center;
+}
+input::placeholder {
+    color:rgba(226, 213, 213, 0.918);
+    font-size: 12px;
+}
